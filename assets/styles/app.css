@@ -74,6 +74,20 @@ button:active {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.26);
   width: 50rem;
   max-width: 90%;
+  background-color: transparent;
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
+}
+
+.product-item div.product {
+  border: 1px solid #540075;
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
+}
+
+.product-item img {
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
 }
 
 .product-item img {
@@ -90,4 +104,13 @@ button:active {
 .product-item h2,
 .product-item h3 {
   margin: 0 0 1rem 0;
+}
+
+details {
+  background-color: #540075;
+  color: white;
+  margin: 10px;
+  padding: 15px;
+  border: 1px solid #540075;
+  border-radius: 10px;
 }
