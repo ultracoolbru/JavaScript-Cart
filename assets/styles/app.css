@@ -75,14 +75,12 @@ button:active {
   width: 50rem;
   max-width: 90%;
   background-color: transparent;
-  border-top-left-radius: 10px;
-  border-top-right-radius: 10px;
+  border-radius: 10px;
 }
 
 .product-item div.product {
   border: 1px solid #540075;
-  border-top-left-radius: 10px;
-  border-top-right-radius: 10px;
+  border-radius: 10px;
 }
 
 .product-item img {
