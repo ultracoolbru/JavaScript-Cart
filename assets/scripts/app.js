@@ -8,16 +8,46 @@ class Product {
     }
 }
 
+// Component class with constructor and createRootElement method.
+class Component {
+    constructor(renderHookId) {
+        this.renderHookId = renderHookId;
+    }
+
+    createRootElement(tag, cssClasses, attributes) {
+        const rootElement = document.createElement(tag);
+
+        if (cssClasses) {
+            rootElement.className = cssClasses;
+        }
+
+        if (attributes && attributes.length > 0) {
+            for (const attribute of attributes) {
+                rootElement.setAttribute(attribute.name, attribute.value);
+            }
+        }
+
+        document.getElementById(this.renderHookId).append(rootElement);
+        return rootElement;
+    }
+}
+
+class ElementAttribute {
+    constructor(attributeName, attributeValue) {
+        this.attributeName = attributeName;
+        this.attributeValue = attributeValue;
+    }
+}
+
 // ProductItem class with constructor and render method.
 class ProductItem {
     constructor(product) {
         this.product = product;
     }
 
-    // Get access to the add to cart button via the event listener.
+    // Get access to the add to cart button via the event listener, and add the product to the cart.
     addToCart() {
-        console.log('Added to cart!');
-        console.log(this.product);
+        App.addProductToCart(this.product);
     }
 
     render() {
@@ -60,10 +90,7 @@ class ProductList {
         )
     ];
 
-    // constructor() {}
-
     render() {
-        const renderHook = document.getElementById('app');
         const productListElement = document.createElement('ul');
         productListElement.className = 'product-list';
         for (const product of this.products) {
@@ -71,37 +98,72 @@ class ProductList {
             const productItemElement = productItem.render();
             productListElement.append(productItemElement);
         }
-        renderHook.append(productListElement);
+        return productListElement;
     }
 }
 
-class ShoppingCart {
+// ShoppingCart class with constructor and render, addProduct method.
+class ShoppingCart extends Component {
     items = [];
 
+    set cartItems(value) {
+        this.items = value;
+        this.totalOutput.innerHTML = `<h2>Total: \$${this.totalAmount.toFixed(2)}</h2>`;
+    }
+
+    get totalAmount() {
+        return this.items.reduce((previousValue, currentItem) => previousValue + currentItem.price, 0);
+    }
+
+    addProduct(product) {
+        const updatedItems = [...this.items];
+        updatedItems.push(product);
+        this.cartItems = updatedItems;
+
+        console.log(product.title + ' added to cart!');
+    }
+
     render() {
-        const cartElement = document.createElement('section');
+        const cartElement = this.createRootElement('section', 'cart');
         cartElement.innerHTML = `
             <h2>Total: \$${0}</h2>
             <button>Order Now!</button>
-        `;
-        cartElement.className = 'cart';
+        `;        
+        this.totalOutput = cartElement.querySelector('h2');
+
         return cartElement;
     }
 }
 
+// Shop class with constructor and render method.
 class Shop {
     render() {
         const renderHook = document.getElementById('app');
 
-        this.cart = new ShoppingCart();
-        const cartElement = this.cart.render();
+        this.shoppingCart = new ShoppingCart();
+        const shoppingCartElement = this.shoppingCart.render();
+
         const productList = new ProductList();
         const productListElement = productList.render();
 
-        renderHook.append(cartElement);
+        renderHook.append(shoppingCartElement);
         renderHook.append(productListElement);
     }
 }
 
-const shop = new Shop();
-shop.render();
+// App class with init and addProductToCart method.
+class App {
+    static shoppingCart;
+
+    static init() {
+        const shop = new Shop();
+        shop.render();
+        this.shoppingCart = shop.shoppingCart;
+    }
+
+    static addProductToCart(product) {
+        this.shoppingCart.addProduct(product);
+    }
+}
+
+App.init();
