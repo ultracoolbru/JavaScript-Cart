@@ -36,7 +36,7 @@ class Component {
 
         if (attributes && attributes.length > 0) {
             for (const attribute of attributes) {
-                rootElement.setAttribute(attribute.name, attribute.value);
+                rootElement.setAttribute(attribute.attributeName, attribute.attributeValue);
             }
         }
 
@@ -134,6 +134,10 @@ class ShoppingCart extends Component {
 
     constructor(renderHookId) {
         super(renderHookId, false);
+        this.orderProducts = () => {
+            console.log('Ordering...');
+            console.log(this.items);
+        };
         this.render();
     }
 
@@ -148,6 +152,8 @@ class ShoppingCart extends Component {
     render() {
         const cartElement = this.createRootElement('section', 'cart');
         cartElement.innerHTML = `<h2>Total: \$${0}</h2><button>Order Now!</button>`;
+        const orderButton = cartElement.querySelector('button');
+        orderButton.addEventListener('click', () => this.orderProducts);
         this.totalOutput = cartElement.querySelector('h2');
     }
 }
@@ -166,15 +172,15 @@ class Shop {
 
 // App class with init and addProductToCart method.
 class App {
-    static shoppingCart;
+    static cart;
 
     static init() {
         const shop = new Shop();
-        this.shoppingCart = shop.shoppingCart;
+        this.cart = shop.cart;
     }
 
     static addProductToCart(product) {
-        this.shoppingCart.addProduct(product);
+        this.cart.addProduct(product);
     }
 }
 
