@@ -28,6 +28,7 @@ class Component {
         }
 
         document.getElementById(this.renderHookId).append(rootElement);
+        
         return rootElement;
     }
 }
@@ -115,6 +116,10 @@ class ShoppingCart extends Component {
         return this.items.reduce((previousValue, currentItem) => previousValue + currentItem.price, 0);
     }
 
+    constructor(renderHookId) {
+        super(renderHookId);
+    }
+
     addProduct(product) {
         const updatedItems = [...this.items];
         updatedItems.push(product);
@@ -130,8 +135,6 @@ class ShoppingCart extends Component {
             <button>Order Now!</button>
         `;        
         this.totalOutput = cartElement.querySelector('h2');
-
-        return cartElement;
     }
 }
 
@@ -140,13 +143,12 @@ class Shop {
     render() {
         const renderHook = document.getElementById('app');
 
-        this.shoppingCart = new ShoppingCart();
-        const shoppingCartElement = this.shoppingCart.render();
+        this.shoppingCart = new ShoppingCart('app');
+        this.shoppingCart.render();
 
         const productList = new ProductList();
         const productListElement = productList.render();
 
-        renderHook.append(shoppingCartElement);
         renderHook.append(productListElement);
     }
 }
