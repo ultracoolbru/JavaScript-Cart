@@ -54,7 +54,7 @@ class ProductItem extends Component {
     }
 
     // Get access to the add to cart button via the event listener, and add the product to the cart.
-    addToCart() {
+    #addToCart() {
         App.addProductToCart(this.product);
     }
 
@@ -73,22 +73,23 @@ class ProductItem extends Component {
             `;
         // Because there is only one button per product, querySelector is fine.
         const addCartButton = productItem.querySelector('button');
-        addCartButton.addEventListener('click', this.addToCart.bind(this));
+        addCartButton.addEventListener('click', this.#addToCart.bind(this));
     }
 }
 
 // ProductList class with constructor and render method.
 class ProductList extends Component {
-    products = [];
+    #products = [];
 
     constructor(renderHookId) {
-        super(renderHookId);
-        this.fetchProducts();
+        super(renderHookId, false);
+        this.render();
+        this.#fetchProducts();
     }
 
     //This could be a DB or API call to obtain the data.
-    fetchProducts() {
-        this.products = [
+    #fetchProducts() {
+        this.#products = [
             new Product(
                 'Flowers',
                 'https://picsum.photos/id/25/5000/3333',
@@ -106,14 +107,17 @@ class ProductList extends Component {
     }
 
     renderProducts() {
-        for (const product of this.products) {
-            new ProductItem(product, 'prod-list');
+        for (const product of this.#products) {
+            // The use of instance of for type checking is just used as an example here.
+            if (product instanceof Product) {
+                new ProductItem(product, 'prod-list');
+            }
         }
     }
 
     render() {
         this.createRootElement('ul', 'product-list', [new ElementAttribute('id', 'prod-list')]);
-        if (this.products && this.products.length > 0) {
+        if (this.#products && this.#products.length > 0) {
             this.renderProducts();
         }
     }
@@ -121,30 +125,40 @@ class ProductList extends Component {
 
 // ShoppingCart class with constructor and render, addProduct method.
 class ShoppingCart extends Component {
-    items = [];
+    #items = [];
 
-    set cartItems(value) {
-        this.items = value;
-        this.totalOutput.innerHTML = `<h2>Total: \$${this.totalAmount.toFixed(2)}</h2>`;
+    set #cartItems(value) {
+        this.#items = value;
+        this.totalOutput.innerHTML = `<h2>Total: \$${this.#totalAmount.toFixed(2)}</h2>`;
     }
 
-    get totalAmount() {
-        return this.items.reduce((previousValue, currentItem) => previousValue + currentItem.price, 0);
+    get #totalAmount() {
+        return this.#items.reduce((previousValue, currentItem) => previousValue + currentItem.price, 0);
     }
 
     constructor(renderHookId) {
         super(renderHookId, false);
-        this.orderProducts = () => {
-            console.log('Ordering...');
-            console.log(this.items);
-        };
         this.render();
     }
 
+    #orderProducts = () => {
+        console.log('Ordering...');
+
+        console.log(this.#items);
+
+        if (this.#items.length > 0 && this.#items.length > 1) {
+            console.log('Products ordered!');
+        } else if (this.#items.length === 1) {
+            console.log('Product ordered!');
+        } else {
+            console.log('No products ordered!');
+        }
+    }
+
     addProduct(product) {
-        const updatedItems = [...this.items];
+        const updatedItems = [...this.#items];
         updatedItems.push(product);
-        this.cartItems = updatedItems;
+        this.#cartItems = updatedItems;
 
         console.log(product.title + ' added to cart!');
     }
@@ -153,7 +167,7 @@ class ShoppingCart extends Component {
         const cartElement = this.createRootElement('section', 'cart');
         cartElement.innerHTML = `<h2>Total: \$${0}</h2><button>Order Now!</button>`;
         const orderButton = cartElement.querySelector('button');
-        orderButton.addEventListener('click', () => this.orderProducts);
+        orderButton.addEventListener('click', this.#orderProducts.bind(this));
         this.totalOutput = cartElement.querySelector('h2');
     }
 }
@@ -161,10 +175,10 @@ class ShoppingCart extends Component {
 // Shop class with constructor and render method.
 class Shop {
     constructor() {
-        this.render();
+        this.#render();
     }
 
-    render() {
+    #render() {
         this.shoppingCart = new ShoppingCart('app');
         new ProductList('app');
     }
@@ -172,15 +186,19 @@ class Shop {
 
 // App class with init and addProductToCart method.
 class App {
-    static cart;
+    static #cart;
 
     static init() {
         const shop = new Shop();
-        this.cart = shop.cart;
+        this.#cart = shop.shoppingCart;
+
+        // This is used to show the use of Object Descriptors.
+        console.log(Object.getOwnPropertyDescriptors(this.#cart));
+        Object.defineProperty(this.#cart, 'app', {configurable: false})
     }
 
     static addProductToCart(product) {
-        this.cart.addProduct(product);
+        this.#cart.addProduct(product);
     }
 }
 
